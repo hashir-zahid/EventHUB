@@ -1,0 +1,680 @@
+﻿@model IEnumerable<EventHUB.Models.Entities.EventMedia>
+@{
+    Layout = null;
+    var folderList = Model.Select(m => m.FolderName).ToList();
+    var currentFolder = Context.Request.Query["folder"].ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Library - Admin Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --urgent-color: #e74c3c;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 20px 10px;
+            }
+
+            .sidebar-menu ul {
+                list-style: none;
+            }
+
+            .sidebar-menu li a {
+                display: block;
+                padding: 12px 20px;
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: all 0.3s;
+                border-left: 3px solid transparent;
+            }
+
+                .sidebar-menu li a:hover,
+                .sidebar-menu li a.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu li a i {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Content Area Styles */
+        .content {
+            padding: 30px;
+        }
+
+        /* Media Library Specific Styles */
+        .media-upload-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+            .btn-upload:hover {
+                background-color: var(--secondary-color);
+            }
+
+        /* Media Card Styles */
+        .media-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card-img-container {
+            height: 200px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+
+        .media-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .video-container video {
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+        .media-card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card-actions {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Modal Styles */
+        .media-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .media-modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .media-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1060;
+        }
+
+        .media-modal-media {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            .stats-container {
+                flex-direction: column;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+                .sidebar:hover {
+                    width: var(--sidebar-width);
+                }
+
+            .sidebar-header h2,
+            .sidebar-menu h3,
+            .sidebar-menu li a span {
+                display: none;
+            }
+
+            .sidebar:hover .sidebar-header h2,
+            .sidebar:hover .sidebar-menu h3,
+            .sidebar:hover .sidebar-menu li a span {
+                display: inline;
+            }
+
+            .sidebar-menu li a {
+                text-align: center;
+                padding: 12px 5px;
+            }
+
+                .sidebar-menu li a i {
+                    margin-right: 0;
+                    font-size: 20px;
+                }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .header {
+                padding: 0 15px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .event-actions {
+                flex-direction: column;
+            }
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
+                transform: translateY(-1px);
+            }
+
+            .btn-delete:active {
+                transform: translateY(0);
+            }
+
+            .btn-delete i {
+                font-size: 0.75rem;
+            }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2 class="m-0">Admin</h2>
+        </div>
+        <div class="sidebar-menu">
+            <h3>Main</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="AdminDashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="AddEvent"><i class="fas fa-plus-circle"></i> <span>Add New Event</span></a>
+                </li>
+            </ul>
+
+            <h3>Management</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="EventList"><i class="fas fa-list-ul"></i> <span>Event List</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="MemberList"><i class="fas fa-users"></i> <span>Members</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" asp-controller="Admin" asp-action="MediaLibrary"><i class="fas fa-photo-video"></i> <span>Media Library</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Finance"><i class="fas fa-wallet"></i> <span>Finance</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Meeting"><i class="fas fa-clipboard-list"></i> <span>Meetings</span></a>
+                </li>
+            </ul>
+
+            <h3>User</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Feedback"><i class="fas fa-comments"></i> <span>Feedbacks</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Message"><i class="fas fa-envelope"></i> <span>Member Messages</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Notification"><i class="fas fa-envelope"></i> <span>Notification</span></a>
+                </li>
+            </ul>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h3>Media Library</h3>
+        </div>
+
+        <div class="content">
+            <!-- Upload Form (no background div) -->
+            <div class="media-upload-form">
+                <h4 class="mb-4 text-primary">Upload New Media</h4>
+
+                @if (!string.IsNullOrEmpty(currentFolder))
+                {
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-folder me-2"></i> Uploading to: <strong>@currentFolder</strong>
+                        <a href="@Url.Action("MediaLibrary")" class="float-end text-decoration-none">
+                            <i class="fas fa-times me-1"></i> Clear filter
+                        </a>
+                    </div>
+                }
+
+                <form asp-action="UploadMedia" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Media File <span class="text-danger">*</span></label>
+                            <input type="file" name="file" class="form-control" required />
+                            <div class="form-text">Accepted formats: .jpg, .png, .mp4, .mov</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Event Name <span class="text-danger">*</span></label>
+                            <input type="text" name="eventName" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Media Type <span class="text-danger">*</span></label>
+                            <select name="mediaType" class="form-select" required>
+                                <option value="" disabled selected>Select type</option>
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Event Date <span class="text-danger">*</span></label>
+                            <input type="date" name="eventDate" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Event Time <span class="text-danger">*</span></label>
+                            <input type="time" name="eventTime" class="form-control" required />
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="newFolderToggle">
+                                <label class="form-check-label" for="newFolderToggle">Create New Folder</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 folder-select-group">
+                            <label class="form-label">Select Existing Folder <span class="text-danger">*</span></label>
+                            <select name="folderName" class="form-select" required>
+                                <option value="">Select a folder</option>
+                                @foreach (var folder in folderList.Distinct())
+                                {
+                                    <option value="@folder" selected="@(currentFolder == folder)">@folder</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 folder-input-group d-none">
+                            <label class="form-label">New Folder Name <span class="text-danger">*</span></label>
+                            <input type="text" name="newFolderName" class="form-control" placeholder="Enter new folder name" />
+                        </div>
+                        <div class="col-12 text-end">
+                            <button asp-action="UploadMedia" type="submit" class="btn btn-upload">
+                                <i class="fas fa-upload me-2"></i>Upload Media
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <div class="bg-white p-3 rounded shadow-sm border">
+                        <h5 class="mb-3">Folders</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center @(string.IsNullOrEmpty(currentFolder) ? "active" : "")">
+                                <a href="@Url.Action("MediaLibrary", new { folder = "" })" class="text-decoration-none">All Media</a>
+                                <span class="badge bg-primary rounded-pill">@Model.Count()</span>
+                            </li>
+                            @foreach (var folder in folderList.Distinct())
+                            {
+                                var count = Model.Count(m => m.FolderName == folder);
+                                <li class="list-group-item d-flex justify-content-between align-items-center @(currentFolder == folder ? "active" : "")">
+                                    <a href="@Url.Action("MediaLibrary", new { folder = folder })" class="text-decoration-none">@folder</a>
+                                    <span class="badge bg-secondary rounded-pill">@count</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-photo-video fa-4x text-muted mb-3"></i>
+                            <h4>No media found</h4>
+                            <p class="text-muted">Upload some media to get started.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var item in Model)
+                            {
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card shadow-sm media-card">
+                                        <div class="media-card-img-container">
+                                            @if (item.MediaType == "image")
+                                            {
+                                                <img src="@item.FilePath" class="media-card-img" alt="@item.EventName">
+                                            }
+                                            else if (item.MediaType == "video")
+                                            {
+                                                <div class="video-container">
+                                                    <video controls>
+                                                        <source src="@item.FilePath" type="video/mp4">
+                                                    </video>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="card-body media-card-body">
+                                            <h5 class="card-title">@item.EventName</h5>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="far fa-calendar-alt me-1"></i>@item.EventDate.ToString("MMMM dd, yyyy")
+                                            </p>
+                                            <p class="card-text small text-muted mb-2">
+                                                <i class="far fa-clock me-1"></i>Uploaded @item.UploadDate.ToString("MMMM dd, yyyy")
+                                            </p>
+                                            <div class="media-card-actions">
+                                                <button class="btn btn-sm btn-outline-primary view-media-btn"
+                                                        data-media="@item.FilePath"
+                                                        data-type="@item.MediaType">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <form asp-action="DeleteMedia" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button class="btn btn-sm btn-outline-primary view-media-btn" type="submit">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 EventHub | Admin Dashboard v1.0</p>
+        </div>
+    </div>
+
+    <!-- Media Modal -->
+    <div id="mediaModal" class="media-modal">
+        <span class="media-modal-close">&times;</span>
+        <div class="media-modal-content">
+            <div id="modalMediaContainer">
+                <!-- Media will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle between folder select and new folder input
+        document.getElementById('newFolderToggle').addEventListener('change', function() {
+            const folderSelectGroup = document.querySelector('.folder-select-group');
+            const folderInputGroup = document.querySelector('.folder-input-group');
+
+            if (this.checked) {
+                folderSelectGroup.classList.add('d-none');
+                folderInputGroup.classList.remove('d-none');
+                folderSelectGroup.querySelector('select').removeAttribute('required');
+                folderInputGroup.querySelector('input').setAttribute('required', '');
+            } else {
+                folderSelectGroup.classList.remove('d-none');
+                folderInputGroup.classList.add('d-none');
+                folderSelectGroup.querySelector('select').setAttribute('required', '');
+                folderInputGroup.querySelector('input').removeAttribute('required');
+            }
+        });
+
+        // Media Modal functionality
+        const modal = document.getElementById('mediaModal');
+        const modalMediaContainer = document.getElementById('modalMediaContainer');
+        const closeBtn = document.querySelector('.media-modal-close');
+
+        // View button click handler
+        document.querySelectorAll('.view-media-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mediaPath = this.getAttribute('data-media');
+                const mediaType = this.getAttribute('data-type');
+
+                let mediaElement;
+                if (mediaType === 'image') {
+                    mediaElement = document.createElement('img');
+                    mediaElement.src = mediaPath;
+                    mediaElement.classList.add('media-modal-media');
+                } else if (mediaType === 'video') {
+                    mediaElement = document.createElement('video');
+                    mediaElement.src = mediaPath;
+                    mediaElement.controls = true;
+                    mediaElement.autoplay = true;
+                    mediaElement.classList.add('media-modal-media');
+                }
+
+                // Clear previous content and add new media
+                modalMediaContainer.innerHTML = '';
+                modalMediaContainer.appendChild(mediaElement);
+
+                // Show modal
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Close modal
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        // Close when clicking outside the modal content
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Delete button functionality (you'll need to implement the actual deletion)
+        document.querySelectorAll('.delete-media-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mediaId = this.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this media?')) {
+                    // Here you would typically make an AJAX call to delete the media
+                    // For now, we'll just remove the card from the UI
+                    this.closest('.col-md-6').remove();
+
+                    // You would replace the above with something like:
+                    /*
+                    fetch('/Admin/DeleteMedia?id=' + mediaId, {
+                        method: 'POST'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            this.closest('.col-md-6').remove();
+                        } else {
+                            alert('Failed to delete media');
+                        }
+                    });
+                    */
+                }
+            });
+        });
+    </script>
+</body>
+</html>

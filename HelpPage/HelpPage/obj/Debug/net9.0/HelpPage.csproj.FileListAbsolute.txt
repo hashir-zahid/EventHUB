@@ -1,0 +1,11 @@
+C:\Users\Computer\source\repos\HelpPage\HelpPage\bin\Debug\net9.0\HelpPage.deps.json
+C:\Users\Computer\source\repos\HelpPage\HelpPage\bin\Debug\net9.0\HelpPage.dll
+C:\Users\Computer\source\repos\HelpPage\HelpPage\bin\Debug\net9.0\HelpPage.pdb
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.AssemblyInfoInputs.cache
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.AssemblyInfo.cs
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.csproj.CoreCompileInputs.cache
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.dll
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\refint\HelpPage.dll
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\HelpPage.pdb
+C:\Users\Computer\source\repos\HelpPage\HelpPage\obj\Debug\net9.0\ref\HelpPage.dll

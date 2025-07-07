@@ -1,0 +1,341 @@
+﻿@model EventHUB.Models.Entities.User
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Member - NCSS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a89dc;
+            --primary-light: #5d9cec;
+            --primary-lighter: #e6f2ff;
+            --primary-dark: #3b7dd8;
+            --text: #434a54;
+            --text-light: #aab2bd;
+            --light: #f5f7fa;
+            --border: #e0e6ed;
+            --error: #ed5565;
+            --success: #48cfad;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-lighter);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .edit-container {
+            background-color: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(74, 137, 220, 0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+            .edit-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 6px;
+                background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            }
+
+        .edit-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .edit-header h1 {
+                color: var(--primary);
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
+            .edit-header p {
+                color: var(--text-light);
+                font-size: 0.95rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: var(--text);
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                font-size: 0.9375rem;
+                transition: all 0.2s ease;
+                background-color: var(--white);
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    border-color: var(--primary);
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(74, 137, 220, 0.2);
+                }
+
+            .form-group textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+        .update-button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+
+            .update-button:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(74, 137, 220, 0.25);
+            }
+
+            .update-button:active {
+                transform: translateY(0);
+            }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+            .back-link a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s ease;
+            }
+
+                .back-link a:hover {
+                    color: var(--primary-dark);
+                    text-decoration: underline;
+                }
+
+        @@media (max-width: 576px) {
+            .edit-container {
+                padding: 1.75rem;
+                border-radius: 12px;
+            }
+
+            body {
+                padding: 1rem;
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-container {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23434a54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .text-danger {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .success-message {
+            background-color: var(--success);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+            .checkbox-container input[type="checkbox"] {
+                width: auto;
+                margin-right: 0.5rem;
+            }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <div class="edit-header">
+            <h1>Edit Member</h1>
+            <p>Update member information</p>
+        </div>
+
+        <form asp-action="UpdateMember" asp-controller="Admin" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Username">Username</label>
+                <input asp-for="Username" placeholder="Enter username">
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <input type="hidden" asp-for="Password" />
+            <div class="form-group">
+                <label asp-for="StudentID">Student ID</label>
+                <input asp-for="StudentID" placeholder="Enter student ID">
+                <span asp-validation-for="StudentID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email">Email Address</label>
+                <input asp-for="Email" placeholder="Enter email">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone">Phone Number</label>
+                <input asp-for="Phone" placeholder="Enter phone number">
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Department">Department</label>
+                <select asp-for="Department">
+                    <option value="">Select department</option>
+                    <option value="BSCS Morning">BSCS Morning</option>
+                    <option value="BSSE Morning">BSSE Morning</option>
+                    <option value="BSAI Morning">BSAI Morning</option>
+                    <option value="BSCS Evening">BSCS Evening</option>
+                    <option value="BSSE Evening">BSSE Evening</option>
+                    <option value="BSAI Evening">BSAI Evening</option>
+                </select>
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Semester">Semester</label>
+                <select asp-for="Semester">
+                    <option value="">Select semester</option>
+                    <option value="1">1st Semester</option>
+                    <option value="2">2nd Semester</option>
+                    <option value="3">3rd Semester</option>
+                    <option value="4">4th Semester</option>
+                    <option value="5">5th Semester</option>
+                    <option value="6">6th Semester</option>
+                    <option value="7">7th Semester</option>
+                    <option value="8">8th Semester</option>
+                </select>
+                <span asp-validation-for="Semester" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Team">Team</label>
+                <select asp-for="Team">
+                    <option value="">Select team</option>
+                    <option value="Management">Management</option>
+                    <option value="Acting">Acting</option>
+                    <option value="Security">Security</option>
+                    <option value="Singing">Singing</option>
+                </select>
+                <span asp-validation-for="Team" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Address">Address</label>
+                <textarea asp-for="Address" placeholder="Enter address"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-container">
+                    <input type="checkbox" asp-for="IsApproved" />
+                    <label asp-for="IsApproved">Approved Member</label>
+                </div>
+                <span asp-validation-for="IsApproved" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="update-button">
+                <i class="fas fa-save"></i> Update Member
+            </button>
+
+            <div class="back-link">
+                <a asp-action="MemberList" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Back to Member List</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Validation scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

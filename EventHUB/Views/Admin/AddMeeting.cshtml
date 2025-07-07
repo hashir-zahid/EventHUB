@@ -1,0 +1,367 @@
+﻿@model EventHUB.Models.Entities.Meeting
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Meeting</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 1.25rem 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 1.25rem 0.625rem;
+            }
+
+            .sidebar-menu .nav-link {
+                color: rgba(255, 255, 255, 0.8);
+                padding: 0.75rem 1.25rem;
+                border-left: 3px solid transparent;
+                transition: all 0.3s;
+            }
+
+                .sidebar-menu .nav-link:hover,
+                .sidebar-menu .nav-link.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0.625rem;
+                    width: 1.25rem;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            height: 70px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        /* Form Container Styles */
+        .form-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            color: var(--primary-color);
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Button Styles */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: var(--secondary-color);
+                color: white;
+            }
+
+        .btn-secondary-custom {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: #dfe6e9;
+            }
+
+        /* Form Control Styles */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+
+        /* Validation Styles */
+        .field-validation-error {
+            color: var(--accent-color);
+            font-size: 0.875rem;
+        }
+
+        .input-validation-error {
+            border-color: var(--accent-color);
+        }
+
+            .input-validation-error:focus {
+                border-color: var(--accent-color);
+                box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25);
+            }
+
+        /* Responsive Styles */
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+                .sidebar:hover {
+                    width: var(--sidebar-width);
+                }
+
+            .sidebar-header h2,
+            .sidebar-menu h3,
+            .sidebar-menu .nav-link span {
+                display: none;
+            }
+
+            .sidebar:hover .sidebar-header h2,
+            .sidebar:hover .sidebar-menu h3,
+            .sidebar:hover .sidebar-menu .nav-link span {
+                display: inline;
+            }
+
+            .sidebar-menu .nav-link {
+                text-align: center;
+                padding: 0.75rem 0.3125rem;
+            }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0;
+                    font-size: 1.25rem;
+                }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: var(--sidebar-width);
+            }
+
+            .form-container {
+                padding: 1.5rem;
+                margin: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="m-0">Admin</h2>
+            </div>
+            <div class="sidebar-menu">
+                <h3>Main</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AdminDashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AddEvent"><i class="fas fa-plus-circle"></i> <span>Add New Event</span></a>
+                    </li>
+                </ul>
+
+                <h3>Management</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="EventList"><i class="fas fa-list-ul"></i> <span>Event List</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  " asp-controller="Admin" asp-action="MemberList"><i class="fas fa-users"></i> <span>Members</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="MediaLibrary"><i class="fas fa-photo-video"></i> <span>Media Library</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Finance"><i class="fas fa-wallet"></i> <span>Finance</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Admin" asp-action="Meeting"><i class="fas fa-clipboard-list"></i> <span>Meetings</span></a>
+                    </li>
+                </ul>
+
+                <h3>User</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Feedback"><i class="fas fa-comments"></i> <span>Feedbacks</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Message"><i class="fas fa-envelope"></i> <span>Member Messages</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Notification"><i class="fas fa-envelope"></i> <span>Notification</span></a>
+                    </li>
+                </ul>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Guest" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
+            <!-- Header -->
+            <div class="header">
+                <h3 class="m-0">Add New Meeting</h3>
+                <a asp-action="Meeting" class="btn-secondary-custom">
+                    <i class="fas fa-arrow-left"></i> Back to Meetings
+                </a>
+            </div>
+
+            <!-- Form Content -->
+            <div class="form-container">
+                <h2 class="form-title">Schedule New Meeting</h2>
+
+                <form asp-action="AddMeeting" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Meeting Title *</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter meeting title">
+                        <span asp-validation-for="Title" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Date" class="form-label">Date *</label>
+                            <input asp-for="Date" type="date" class="form-control">
+                            <span asp-validation-for="Date" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="Start" class="form-label">Start Time *</label>
+                            <input asp-for="Start" type="time" class="form-control">
+                            <span asp-validation-for="Start" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="End" class="form-label">End Time *</label>
+                            <input asp-for="End" type="time" class="form-control">
+                            <span asp-validation-for="End" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Agenda" class="form-label">Agenda *</label>
+                        <textarea asp-for="Agenda" class="form-control" rows="4" placeholder="Describe the meeting agenda"></textarea>
+                        <span asp-validation-for="Agenda" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Link" class="form-label">Meeting Link *</label>
+                        <input asp-for="Link" type="url" class="form-control" placeholder="https://meet.google.com/abc-xyz">
+                        <span asp-validation-for="Link" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a asp-action="Meeting" class="btn-secondary-custom me-2">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button asp-action="AddMeeting" type="submit" class="btn-primary-custom">
+                            <i class="fas fa-save"></i> Save Meeting
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Validation Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

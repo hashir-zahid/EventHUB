@@ -1,0 +1,583 @@
+﻿@model IEnumerable<EventHUB.Models.Entities.User>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member List (admin)</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 1.25rem 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 1.25rem 0.625rem;
+            }
+
+            .sidebar-menu .nav-link {
+                color: rgba(255, 255, 255, 0.8);
+                padding: 0.75rem 1.25rem;
+                border-left: 3px solid transparent;
+                transition: all 0.3s;
+            }
+
+                .sidebar-menu .nav-link:hover,
+                .sidebar-menu .nav-link.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0.625rem;
+                    width: 1.25rem;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .header {
+            height: 70px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        /* Content Container */
+        .content-container {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Search Filter Styles */
+        .search-filter {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+            .filter-btn:hover {
+                background-color: var(--secondary-color);
+            }
+
+        /* Member Container Styles */
+        .member-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            width: 100%;
+        }
+
+        .member-header h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .member-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+            .member-table th,
+            .member-table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .member-table th {
+                background-color: #f1f2f6;
+                color: #2f3542;
+            }
+
+            .member-table td .status {
+                display: inline-block;
+                padding: 5px 10px;
+                background-color: var(--success-color);
+                color: white;
+                border-radius: 20px;
+                font-size: 12px;
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-update {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+            .btn-update:hover {
+                background-color: #e67e22;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+        .btn-delete {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+            .btn-delete:hover {
+                background-color: #c0392b;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+        .member-footer {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+            .member-footer a {
+                text-decoration: none;
+                color: var(--dark-color);
+                font-size: 14px;
+                transition: color 0.2s;
+            }
+
+                .member-footer a:hover {
+                    color: var(--primary-color);
+                }
+
+                .member-footer a.report {
+                    color: var(--warning-color);
+                }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        /* Responsive Sidebar */
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+                .sidebar:hover {
+                    width: var(--sidebar-width);
+                }
+
+            .sidebar-header h2,
+            .sidebar-menu h3,
+            .sidebar-menu .nav-link span {
+                display: none;
+            }
+
+            .sidebar:hover .sidebar-header h2,
+            .sidebar:hover .sidebar-menu h3,
+            .sidebar:hover .sidebar-menu .nav-link span {
+                display: inline;
+            }
+
+            .sidebar-menu .nav-link {
+                text-align: center;
+                padding: 0.75rem 0.3125rem;
+            }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0;
+                    font-size: 1.25rem;
+                }
+
+            .main-content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: var(--sidebar-width);
+                width: calc(100% - var(--sidebar-width));
+            }
+            /* Responsive table adjustments */
+            .member-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .header {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+
+                .header h3 {
+                    margin-bottom: 10px;
+                }
+
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        /* Notification Badge Styles */
+        .notification-badge {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .sidebar-menu .nav-link {
+            position: relative; /* Needed for absolute positioning */
+            padding-right: 40px; /* Make room for the badge */
+        }
+
+        /* For mobile view when sidebar is collapsed */
+        @@media (max-width: 768px) {
+            .sidebar:not(:hover) .notification-badge {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="m-0">Admin</h2>
+            </div>
+            <div class="sidebar-menu">
+                <h3>Main</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AdminDashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AddEvent"><i class="fas fa-plus-circle"></i> <span>Add New Event</span></a>
+                    </li>
+                </ul>
+
+                <h3>Management</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="EventList"><i class="fas fa-list-ul"></i> <span>Event List</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  active" asp-controller="Admin" asp-action="MemberList"><i class="fas fa-users"></i> <span>Members</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="MediaLibrary"><i class="fas fa-photo-video"></i> <span>Media Library</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Finance"><i class="fas fa-wallet"></i> <span>Finance</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Meeting"><i class="fas fa-clipboard-list"></i> <span>Meetings</span></a>
+                    </li>
+                </ul>
+
+                <h3>User</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Feedback"><i class="fas fa-comments"></i> <span>Feedbacks</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Message"><i class="fas fa-envelope"></i> <span>Member Messages</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Notification"><i class="fas fa-envelope"></i> <span>Notification</span></a>
+                    </li>
+                </ul>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Guest" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h3 class="m-0">Members List</h3>
+            </div>
+
+            <!-- Content Container -->
+            <div class="content-container">
+                <!-- Search Filter -->
+                <div class="search-filter">
+                    <form Sclass="filter-form" id="searchForm">
+                        <input type="text" class="filter-input" id="studentIdFilter" placeholder="Search by Student ID...">
+                        <button type="submit" class="filter-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button type="button" class="filter-btn" id="resetFilter" style="background-color: var(--light-color); color: var(--dark-color);">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </form>
+                </div>
+
+                <div class="member-container">
+                    <div class="member-header">
+                        <h1>All Members</h1>
+                    </div>
+
+                    <table class="member-table" id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Semester</th>
+                                <th>Team</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var member in Model.AsEnumerable().Reverse())
+                            {
+                                <tr data-student-id="@member.StudentID">
+                                    <td>@member.StudentID</td>
+                                    <td>@member.Username</td>
+                                    <td>@member.Email</td>
+                                    <td>@member.Department</td>
+                                    <td>@member.Semester</td>
+                                    <td>@member.Team</td>
+                                    <td>
+                                        <a asp-controller="Admin" asp-action="UpdateMember" asp-route-id="@member.Id"
+                                           class="btn-action btn-update" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-controller="Admin" asp-action="Delete" asp-route-id="@member.Id"
+                                           class="btn-action btn-delete" title="Delete"
+                                           onclick="return confirmDelete()">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                            <tr id="noResults" style="display: none;">
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="fas fa-search fa-2x mb-2" style="color: var(--light-color);"></i>
+                                    <h4>No members found</h4>
+                                    <p class="text-muted">Try a different search term</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <p class="m-0">prepared@logan.com | EventPride Dashboard v1.0</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            filterTable();
+        });
+
+        document.getElementById('resetFilter').addEventListener('click', function() {
+            document.getElementById('studentIdFilter').value = '';
+            filterTable();
+        });
+
+        function filterTable() {
+            const filterValue = document.getElementById('studentIdFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('#membersTable tbody tr');
+            let foundMatch = false;
+
+            rows.forEach(row => {
+                const studentId = row.querySelector('td:first-child').textContent.toLowerCase();
+                const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+                if (studentId.includes(filterValue) ||
+                    username.includes(filterValue) ||
+                    email.includes(filterValue)) {
+                    row.style.display = '';
+                    foundMatch = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Show "No results" message if no matches found
+            const noResultsRow = document.getElementById('noResults');
+            if (noResultsRow) {
+                noResultsRow.style.display = foundMatch ? 'none' : '';
+            }
+        }
+
+        // Delete confirmation
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this member? This action cannot be undone.');
+        }
+
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize search on page load if there's a value
+            if (document.getElementById('studentIdFilter').value) {
+                filterTable();
+            }
+        });
+    </script>
+</body>
+</html>
