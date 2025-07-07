@@ -32,7 +32,7 @@ Edit
 
 | Dashboard | Event List |
 |----------|------------|
-| ![Dashboard](Previews/dashboard.png) | ![Event List](Previews/eventlist.png) |
+| ![Dashboard](Previews/adb.png) | ![Event List](Previews/afeed.png) |
 
 > 📌 Add more images to the `Previews` folder and reference them here.
 
