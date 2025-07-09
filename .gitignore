@@ -1,0 +1,27 @@
+# Ignore Visual Studio temporary files, build results, and folders
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build folders
+bin/
+obj/
+
+# Others
+*.log
+*.tlog
+*.cache
+*.dbmdl
+*.pdb
+*.vsp
+*.pidb
+*.psess
+*.vspx
+*.tmp
+*.csproj.user
+
+# IIS Express and VS Code
+.vscode/
+*.vspscc
