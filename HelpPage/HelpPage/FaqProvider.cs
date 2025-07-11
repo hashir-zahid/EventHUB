@@ -11,6 +11,7 @@ namespace HelpPage
         public string Question { get; set; }
         public string Answer { get; set; }
     }
+    
     public static class FaqProvider
     {
         public static List<FaqItem> GetFaqs()
