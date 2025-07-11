@@ -21,7 +21,6 @@ namespace EventHUB.Controllers
 
 
         
-
         #region Dashboard
         //------------------Guest Dashboard-----------------------------
         public IActionResult GuestDashboard()
