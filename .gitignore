@@ -1,27 +1,37 @@
-# Ignore Visual Studio temporary files, build results, and folders
+# Ignore Visual Studio temporary files, build results, and user-specific files
+
+## Build results
+bin/
+obj/
+TestResults/
+*.log
+
+## Visual Studio folders
 .vs/
+.vscode/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Build folders
-bin/
-obj/
-
-# Others
-*.log
-*.tlog
-*.cache
+## ASP.NET files
+App_Data/
 *.dbmdl
-*.pdb
-*.vsp
-*.pidb
-*.psess
-*.vspx
-*.tmp
-*.csproj.user
+*.bak
+*.cache
+*.config.user
 
-# IIS Express and VS Code
-.vscode/
-*.vspscc
+## Publish output
+publish/
+out/
+
+# NuGet
+packages/
+
+# ReSharper
+_ReSharper*/
+*.ncrunch*
+*.localhistory/
+
+# JetBrains Rider
+.idea/
