@@ -40,6 +40,5 @@ namespace EventHUB.Controllers
         {
             return View();
         }
-
     }
 }
