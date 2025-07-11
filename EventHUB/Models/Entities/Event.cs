@@ -4,7 +4,6 @@ namespace EventHUB.Models.Entities
 {
     public class Event
     {
-
         public int Id { get; set; }
 
         [Required]
@@ -31,6 +30,5 @@ namespace EventHUB.Models.Entities
         [Required]
         [Range(1, 10000)]
         public int Max_Attendees { get; set; }
-
     }
 }
