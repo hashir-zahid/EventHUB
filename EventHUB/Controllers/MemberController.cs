@@ -184,6 +184,7 @@ namespace EventHUB.Controllers
         }
         #endregion
 
+
         #region Meetings
         //------------------Meetings-----------------------------------
         public IActionResult Meeting()
