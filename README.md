@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🎉 EventHUB – Modern Event Management Platform
 
 **EventHUB** is a comprehensive event management system built with **ASP.NET Core MVC**. It allows **administrators** to manage events and members, while enabling **members** and **guests** to register, interact, and provide feedback.
