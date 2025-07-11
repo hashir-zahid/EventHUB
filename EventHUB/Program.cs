@@ -16,6 +16,7 @@ builder.Services.AddControllersWithViews(options =>
     });
 });
 
+
 // ✅ Add EF Core
 builder.Services.AddDbContext<ApplicationDbcontext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("default"))
