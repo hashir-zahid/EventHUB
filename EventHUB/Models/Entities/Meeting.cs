@@ -35,6 +35,7 @@ namespace EventHUB.Models.Entities
         public string Link { get; set; }
 
         public string FormattedDate => Date.ToString("MMM dd, yyyy");
+        
         public string FormattedTimeRange => $"{Start.ToString(@"hh\:mm")} to {End.ToString(@"hh\:mm")}";
     }
 }
