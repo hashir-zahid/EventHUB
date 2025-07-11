@@ -22,6 +22,7 @@ namespace EventHUB.Models.Entities
         [Required(ErrorMessage = "Semester is required")]
         public string Semester { get; set; }
 
+        
         // Event Information
         public int EventId { get; set; }
         public string EventName { get; set; }
