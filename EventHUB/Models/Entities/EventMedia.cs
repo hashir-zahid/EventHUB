@@ -29,6 +29,5 @@ namespace EventHUB.Models.Entities
         [Required]
         [StringLength(50)]
         public string FolderName { get; set; }
-
     }
 }
