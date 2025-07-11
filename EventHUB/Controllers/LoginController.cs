@@ -51,7 +51,7 @@ namespace EventHUB.Controllers
                     return RedirectToAction("AdminDashboard", "Admin");
                 }
 
-                // Check regular user
+                
                 var user = db.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
 
                 if (user != null)
