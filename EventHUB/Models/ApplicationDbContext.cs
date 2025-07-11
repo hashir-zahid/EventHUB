@@ -18,7 +18,6 @@ namespace EventHUB.Models
             public DbSet<Financial> Financials { get; set; }
             public DbSet<AdminNotification> AdminNotifications { get; set; }
             public DbSet<MemberMessage> MemberMessages { get; set; }
-
         }
     }
 
