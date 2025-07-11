@@ -591,7 +591,6 @@ namespace EventHUB.Controllers
             return View(messages);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult MarkMessageAsRead(int id)
