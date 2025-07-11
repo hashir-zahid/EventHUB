@@ -1,5 +1,4 @@
-# Ignore Visual Studio temporary files, build results, and user-specific files
-
+# Ignore Visual Studio temporary files, build results, and user-specific file
 ## Build results
 bin/
 obj/
