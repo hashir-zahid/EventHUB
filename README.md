@@ -72,8 +72,8 @@
 ## 🖼️ Application Preview
 
 <p align="center">
-  <img src="Previews/adb.png" alt="Admin Dashboard" width="45%">
-  <img src="Previews/afeed.png" alt="Event Management" width="45%">
+  <img src="Previews/Admin-Dashboard.png" alt="Admin Dashboard" width="45%">
+  <img src="Previews/Admin-Feedback.png" alt="Event Management" width="45%">
 </p>
 
 ---
