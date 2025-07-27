@@ -1,0 +1,311 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCSS Member Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a89dc;
+            --primary-light: #5d9cec;
+            --primary-lighter: #e6f2ff;
+            --primary-dark: #3b7dd8;
+            --text: #434a54;
+            --text-light: #aab2bd;
+            --light: #f5f7fa;
+            --border: #e0e6ed;
+            --error: #ed5565;
+            --success: #48cfad;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-lighter);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .signup-container {
+            background-color: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(74, 137, 220, 0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+            .signup-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 6px;
+                background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .signup-header h1 {
+                color: var(--primary);
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
+            .signup-header p {
+                color: var(--text-light);
+                font-size: 0.95rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: var(--text);
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .form-group .required::after {
+                content: '*';
+                color: var(--error);
+                margin-left: 0.25rem;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                font-size: 0.9375rem;
+                transition: all 0.2s ease;
+                background-color: var(--white);
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    border-color: var(--primary);
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(74, 137, 220, 0.2);
+                }
+
+            .form-group textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+        .signup-button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+
+            .signup-button:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(74, 137, 220, 0.25);
+            }
+
+            .signup-button:active {
+                transform: translateY(0);
+            }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+            .login-link a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s ease;
+            }
+
+                .login-link a:hover {
+                    color: var(--primary-dark);
+                    text-decoration: underline;
+                }
+
+        .form-footer {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        @@media (max-width: 576px) {
+            .signup-container {
+                padding: 1.75rem;
+                border-radius: 12px;
+            }
+
+            body {
+                padding: 1rem;
+            }
+        }
+
+        /* Animation */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signup-container {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Select dropdown styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23434a54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-header">
+            <h1>Join NCSS Team</h1>
+            <p>Register to become a member of our community</p>
+        </div>
+
+        <form asp-action="Signup" asp-controller="Guest" method="post">
+            <div class="form-group">
+                <label for="username" class="required">Username</label>
+                <input type="text" id="username" name="username" placeholder="e.g. johndoe" required>
+            </div>
+            <div class="form-group">
+                <label for="studentId" class="required">Student ID</label>
+                <input type="text" id="studentId" name="studentId" placeholder="e.g. FA20-BCS-001" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="required">Password</label>
+                <input type="password" id="password" name="password" placeholder="At least 8 characters" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="required">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="required">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+92 300 1234567" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department" class="required">Department</label>
+                <select id="department" name="department" required>
+                    <option value="" disabled selected>Select your department</option>
+                    <option value="BSCS Morning">BSCS Morning</option>
+                    <option value="BSSE Morning">BSSE Morning</option>
+                    <option value="BSAI Morning">BSAI Morning</option>
+                    <option value="BSCS Evening">BSCS Evening</option>
+                    <option value="BSSE Evening">BSSE Evening</option>
+                    <option value="BSAI Evening">BSAI Evening</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="semester" class="required">Semester</label>
+                <select id="semester" name="semester" required>
+                    <option value="" disabled selected>Select your semester</option>
+                    <option value="1">1st Semester</option>
+                    <option value="2">2nd Semester</option>
+                    <option value="3">3rd Semester</option>
+                    <option value="4">4th Semester</option>
+                    <option value="5">5th Semester</option>
+                    <option value="6">6th Semester</option>
+                    <option value="7">7th Semester</option>
+                    <option value="8">8th Semester</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="team" class="required">Team</label>
+                <select id="team" name="team" required>
+                    <option value="" disabled selected>Select your preferred team</option>
+                    <option value="management">Management</option>
+                    <option value="acting">Acting</option>
+                    <option value="security">Security</option>
+                    <option value="singing">Singing</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea id="address" name="address" placeholder="Your current address (optional)"></textarea>
+            </div>
+
+            <button type="submit" class="signup-button">
+                Create Account
+            </button>
+
+            <div class="login-link">
+                Already have an account? <a asp-action="Login" asp-controller="Login">Log in</a>
+            </div>
+
+            <div class="form-footer">
+                By registering, you agree to our Terms of Service and Privacy Policy
+            </div>
+        </form>
+    </div>
+</body>
+</html>

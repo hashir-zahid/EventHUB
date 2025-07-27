@@ -1,0 +1,570 @@
+﻿@model List<EventHUB.Models.Entities.UserFeedback>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Feedback - Admin Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 1.25rem 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 1.25rem 0.625rem;
+            }
+
+            .sidebar-menu .nav-link {
+                color: rgba(255, 255, 255, 0.8);
+                padding: 0.75rem 1.25rem;
+                border-left: 3px solid transparent;
+                transition: all 0.3s;
+            }
+
+                .sidebar-menu .nav-link:hover,
+                .sidebar-menu .nav-link.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0.625rem;
+                    width: 1.25rem;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            height: 70px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Feedback Card Styles */
+        .feedback-card {
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+            .feedback-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .feedback-date {
+            color: #95a5a6;
+            font-size: 0.85rem;
+        }
+
+        .rating {
+            color: var(--warning-color);
+            font-size: 1.1rem;
+        }
+
+        .feedback-content {
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .feedback-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Custom Button Styles */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: var(--secondary-color);
+                color: white;
+            }
+
+        .btn-outline-custom {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+            .btn-outline-custom:hover {
+                background-color: var(--light-color);
+            }
+
+        .btn-danger-custom {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+            .btn-danger-custom:hover {
+                background-color: #c0392b;
+                color: white;
+            }
+
+        /* Card Grid Layout (Stack cards vertically) */
+        .feedback-list {
+            display: flex;
+            flex-direction: column; /* Stack cards vertically */
+            gap: 1.5rem;
+            align-items: flex-start; /* Align to the start (left) */
+        }
+
+        /* Each card container */
+        .feedback-card-container {
+            flex: 0 0 auto; /* Prevent resizing, keep cards their default size */
+            width: 100%; /* Ensure cards take the full width of the container */
+        }
+
+        /* Responsive Layout (cards stacked vertically even on mobile) */
+        @@media (max-width: 768px) {
+            .feedback-card-container {
+                width: 100%; /* Full width on mobile for better readability */
+            }
+        }
+
+
+        /* Feedback Content Styles (for limiting to 5 lines) */
+        .feedback-content {
+            margin-top: 1rem;
+            line-height: 1.6;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 5; /* Limit to 5 lines */
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis; /* Add ellipsis for overflow text */
+        }
+
+        /* Card Grid Layout */
+        .feedback-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .feedback-card-container {
+            flex: 0 0 48%; /* Two cards per row */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive Layout */
+        @@media (max-width: 768px) {
+            .feedback-card-container {
+                flex: 0 0 100%; /* Single card per row on mobile */
+            }
+        }
+
+        /* Responsive Sidebar */
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+                .sidebar:hover {
+                    width: var(--sidebar-width);
+                }
+
+            .sidebar-header h2,
+            .sidebar-menu h3,
+            .sidebar-menu .nav-link span {
+                display: none;
+            }
+
+            .sidebar:hover .sidebar-header h2,
+            .sidebar:hover .sidebar-menu h3,
+            .sidebar:hover .sidebar-menu .nav-link span {
+                display: inline;
+            }
+
+            .sidebar-menu .nav-link {
+                text-align: center;
+                padding: 0.75rem 0.3125rem;
+            }
+
+                .sidebar-menu .nav-link i {
+                    margin-right: 0;
+                    font-size: 1.25rem;
+                }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        /* Notification Badge Styles */
+        .notification-badge {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .sidebar-menu .nav-link {
+            position: relative; /* Needed for absolute positioning */
+            padding-right: 40px; /* Make room for the badge */
+        }
+
+        /* For mobile view when sidebar is collapsed */
+        @@media (max-width: 768px) {
+            .sidebar:not(:hover) .notification-badge {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                transform: none;
+            }
+        }
+
+        /* Confirmation modal styles */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-dialog {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .read-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .unread {
+            background-color: var(--accent-color);
+        }
+
+        .read {
+            background-color: var(--success-color);
+        }
+
+        .feedback-card {
+            position: relative;
+        }
+        /* Success Button Styles */
+        .btn-success-custom {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+
+            .btn-success-custom:hover {
+                background-color: #27ae60; /* Slightly darker green */
+                color: white;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            .btn-success-custom i {
+                margin-right: 0.5rem;
+            }
+
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="m-0">Admin</h2>
+            </div>
+            <div class="sidebar-menu">
+                <h3>Main</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AdminDashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="AddEvent"><i class="fas fa-plus-circle"></i> <span>Add New Event</span></a>
+                    </li>
+                </ul>
+
+                <h3>Management</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="EventList"><i class="fas fa-list-ul"></i> <span>Event List</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  " asp-controller="Admin" asp-action="MemberList"><i class="fas fa-users"></i> <span>Members</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="MediaLibrary"><i class="fas fa-photo-video"></i> <span>Media Library</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Finance"><i class="fas fa-wallet"></i> <span>Finance</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Meeting"><i class="fas fa-clipboard-list"></i> <span>Meetings</span></a>
+                    </li>
+                </ul>
+
+                <h3>User</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Admin" asp-action="Feedback"><i class="fas fa-comments"></i> <span>Feedbacks</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Message"><i class="fas fa-envelope"></i> <span>Member Messages</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Notification"><i class="fas fa-envelope"></i> <span>Notification</span></a>
+                    </li>
+                </ul>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Guest" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+      
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
+            <!-- Header -->
+            <div class="header d-flex justify-content-between align-items-center px-4">
+                <h3 class="m-0">User Feedback</h3>
+            </div>
+
+            <!-- Content -->
+            <div class="container-fluid p-4">
+                <!-- Feedback List -->
+                <div class="feedback-list">
+                    @foreach (var feedback in Model.AsEnumerable().Reverse())
+                    {
+                        <div class="feedback-card-container" id="feedback-@feedback.Id">
+                            <div class="feedback-card @(feedback.IsRead ? "read-feedback" : "unread-feedback")">
+                                <!-- Read/Unread indicator -->
+                                <div class="read-status @(feedback.IsRead ? "read" : "unread")"></div>
+
+                                <div class="feedback-header">
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            @feedback.Name[0]
+                                        </div>
+                                        <div>
+                                            <div class="user-name">@feedback.Name</div>
+                                            <div class="feedback-date">@feedback.Email</div>
+                                            <div class="feedback-date">@feedback.Event</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="feedback-content">
+                                    <p>@feedback.Feedback</p>
+                                </div>
+                                <div class="feedback-actions">
+                                    <form asp-controller="Admin" asp-action="MarkFeedbackAsRead" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" value="@feedback.Id" />
+                                        <button type="submit" class="btn btn-success-custom" title="Mark as read">
+                                            <i class="fas fa-check-circle"></i> Mark As Read
+                                        </button>
+                                    </form>
+
+                                    <form asp-controller="Admin" asp-action="DeleteFeedback" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" value="@feedback.Id" />
+                                        <button type="submit" class="btn btn-danger-custom" title="Delete feedback"
+                                                onclick="return confirm('Are you sure you want to reject this feedback?');">
+                                            <i class="fas fa-times-circle"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this script for confirmation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Confirm before deleting
+            document.querySelectorAll('.btn-danger-custom').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to reject this feedback?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

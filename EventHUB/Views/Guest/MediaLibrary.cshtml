@@ -1,0 +1,1000 @@
+﻿@model IEnumerable<EventHUB.Models.Entities.EventMedia>
+@{
+    Layout = null;
+    var currentFolder = Context.Request.Query["folder"].ToString();
+    var folderList = Model.Select(m => m.FolderName).Where(f => !string.IsNullOrEmpty(f)).ToList();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Media Library</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --urgent-color: #e74c3c;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 20px 10px;
+            }
+
+            .sidebar-menu ul {
+                list-style: none;
+            }
+
+            .sidebar-menu li a {
+                display: block;
+                padding: 12px 20px;
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: all 0.3s;
+                border-left: 3px solid transparent;
+            }
+
+                .sidebar-menu li a:hover,
+                .sidebar-menu li a.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu li a i {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Content Area Styles */
+        .content {
+            padding: 30px;
+        }
+
+        /* Media Library Specific Styles */
+        .media-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .folder-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            height: 100%;
+        }
+
+        .folder-header {
+            color: var(--dark-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+
+        .folder-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .folder-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+            .folder-item.active {
+                background-color: rgba(52, 152, 219, 0.1);
+            }
+
+                .folder-item.active .folder-link {
+                    color: var(--primary-color);
+                }
+
+                    .folder-item.active .folder-link i {
+                        color: var(--primary-color);
+                    }
+
+        .folder-link {
+            color: #495057;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+            .folder-link i {
+                margin-right: 10px;
+                color: #6c757d;
+            }
+
+        .folder-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .media-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+            .media-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .media-thumbnail-container {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        .media-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 2rem;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-view {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+            .btn-view:hover {
+                background-color: var(--primary-color);
+                color: white;
+            }
+
+        .btn-download {
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+            .btn-download:hover {
+                background-color: var(--success-color);
+                color: white;
+            }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            .media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+                .sidebar:hover {
+                    width: var(--sidebar-width);
+                }
+
+            .sidebar-header h2,
+            .sidebar-menu h3,
+            .sidebar-menu li a span {
+                display: none;
+            }
+
+            .sidebar:hover .sidebar-header h2,
+            .sidebar:hover .sidebar-menu h3,
+            .sidebar:hover .sidebar-menu li a span {
+                display: inline;
+            }
+
+            .sidebar-menu li a {
+                text-align: center;
+                padding: 12px 5px;
+            }
+
+                .sidebar-menu li a i {
+                    margin-right: 0;
+                    font-size: 20px;
+                }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .header {
+                padding: 0 15px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .media-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal-video {
+            width: 80%;
+            height: auto;
+        }
+
+        .modal-image {
+            max-height: 90vh;
+            max-width: 90vw;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .close:hover {
+                color: var(--accent-color);
+            }
+
+        .modal-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .modal-btn:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+
+            .modal-btn i {
+                margin-right: 5px;
+            }
+
+        /* Loading spinner */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2rem;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        /* Grid layout improvements */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+
+        .col-lg-3, .col-lg-9 {
+            padding: 0 15px;
+        }
+
+        .col-lg-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
+        }
+
+        .col-lg-9 {
+            flex: 0 0 75%;
+            max-width: 75%;
+        }
+
+        /* Stats card improvements */
+        .bg-white {
+            background-color: white;
+        }
+
+        .p-3 {
+            padding: 1rem !important;
+        }
+
+        .rounded {
+            border-radius: 0.5rem !important;
+        }
+
+        .shadow-sm {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem !important;
+        }
+
+        .px-3 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .d-flex {
+            display: flex !important;
+        }
+
+        .justify-content-between {
+            justify-content: space-between !important;
+        }
+
+        /* Media grid improvements */
+        .media-grid {
+            margin-top: 20px;
+        }
+
+        /* Empty state improvements */
+        .text-center {
+            text-align: center !important;
+        }
+
+        .py-5 {
+            padding-top: 3rem !important;
+            padding-bottom: 3rem !important;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .fa-4x {
+            font-size: 4em;
+        }
+
+        /* Footer styles */
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 992px) {
+            .col-lg-3, .col-lg-9
+
+        {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .col-lg-3 {
+            margin-bottom: 20px;
+        }
+
+        }
+
+        /* Hover effects for media cards */
+        .media-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+            .media-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        /* Thumbnail hover effects */
+        .media-thumbnail-container {
+            transition: all 0.3s ease;
+        }
+
+        .media-card:hover .media-thumbnail-container {
+            opacity: 0.9;
+        }
+
+        /* Video overlay improvements */
+        .video-overlay {
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .media-card:hover .video-overlay {
+            opacity: 1;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Action button hover effects */
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+
+        /* Folder list improvements */
+        .folder-link {
+            transition: color 0.2s ease;
+        }
+
+        .folder-item:hover .folder-link {
+            color: var(--primary-color);
+        }
+
+            .folder-item:hover .folder-link i {
+                color: var(--primary-color);
+            }
+
+        /* Stats card hover effects */
+        .bg-light {
+            transition: background-color 0.2s ease;
+        }
+
+        .px-3.py-2:hover {
+            background-color: #e9ecef !important;
+        }
+
+        /* Modal improvements */
+        .modal-content {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Loading spinner animation */
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Better focus states for accessibility */
+        button:focus, a:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Smooth scrolling for folder list */
+        .folder-list {
+            max-height: 400px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+            /* Custom scrollbar for folder list */
+            .folder-list::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .folder-list::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            .folder-list::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 10px;
+            }
+
+                .folder-list::-webkit-scrollbar-thumb:hover {
+                    background: #a8a8a8;
+                }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2 class="m-0">Guest</h2>
+        </div>
+        <div class="sidebar-menu">
+            <h3>Main</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="GuestDashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="MyTickets"><i class="fas fa-ticket-alt"></i> <span>My Tickets</span></a>
+                </li>
+            </ul>
+
+            <h3>Explore</h3>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active"><i class="fas fa-photo-video"></i> <span>Media Library</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="Events"><i class="fas fa-calendar-alt"></i> <span>Events</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="Feedback"><i class="fas fa-comments"></i> <span>Feedback</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Guest" asp-action="Help"><i class="fas fa-book"></i> <span>Help</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h3>Media Library</h3>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="media-container">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="folder-container">
+                            <h5 class="folder-header">Folders</h5>
+                            <ul class="folder-list">
+                                <li class="folder-item @(string.IsNullOrEmpty(currentFolder) ? "active" : "")">
+                                    <a href="@Url.Action("MediaLibrary", new { folder = "" })" class="folder-link">
+                                        <i class="fas fa-folder-open"></i> All Media
+                                    </a>
+                                    <span class="folder-badge">@Model.Count()</span>
+                                </li>
+                                @foreach (var folder in folderList.Distinct())
+                                {
+                                    var count = Model.Count(m => m.FolderName == folder);
+                                    <li class="folder-item @(currentFolder == folder ? "active" : "")">
+                                        <a href="@Url.Action("MediaLibrary", new { folder = folder })" class="folder-link">
+                                            <i class="fas fa-folder"></i> @folder
+                                        </a>
+                                        <span class="folder-badge">@count</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                   
+                </div>
+
+                    <div class="col-lg-9">
+                        @if (!Model.Any())
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-photo-video fa-4x text-muted mb-3"></i>
+                                <h4>No media found</h4>
+                                <p class="text-muted">Upload some media to get started.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="media-grid">
+                                @foreach (var item in Model)
+                                {
+                                    <div class="media-card">
+                                        <div class="media-thumbnail-container">
+                                            @if (item.MediaType == "image")
+                                            {
+                                                <img src="@item.FilePath" class="media-thumbnail" alt="@item.EventName">
+                                            }
+                                            else if (item.MediaType == "video")
+                                            {
+                                                <video class="media-thumbnail" muted>
+                                                    <source src="@item.FilePath" type="video/mp4">
+                                                </video>
+                                                <div class="video-overlay">
+                                                    <i class="fas fa-play"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="media-info">
+                                            <h5 class="card-title">@item.EventName</h5>
+                                            <p class="media-meta">
+                                                <i class="far fa-calendar-alt me-1"></i>@item.EventDate.ToString("MMMM dd, yyyy")
+                                            </p>
+                                            <p class="media-meta">
+                                                <i class="far fa-clock me-1"></i>Uploaded @item.UploadDate.ToString("MMMM dd, yyyy")
+                                            </p>
+                                            <div class="media-actions">
+                                                <button class="action-btn btn-view view-media-btn"
+                                                        data-media="@item.FilePath"
+                                                        data-type="@item.MediaType">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <button class="action-btn btn-download download-media-btn"
+                                                        data-media="@item.FilePath"
+                                                        data-filename="@item.EventName"
+                                                        data-type="@item.MediaType">
+                                                    <i class="fas fa-download"></i> Download
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mediaModal" class="modal">
+            <span class="close">&times;</span>
+            <div class="modal-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                </div>
+                <!-- Content will be inserted here by JavaScript -->
+            </div>
+            <div class="modal-controls">
+                <button id="downloadBtn" class="modal-btn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button id="fullscreenBtn" class="modal-btn">
+                    <i class="fas fa-expand"></i> Fullscreen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById("mediaModal");
+        const modalContent = document.querySelector(".modal-content");
+        const closeBtn = document.querySelector(".close");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const fullscreenBtn = document.getElementById("fullscreenBtn");
+        let currentMediaElement = null;
+        let currentMediaUrl = "";
+        let currentMediaFilename = "";
+        let currentMediaType = "";
+
+        // View buttons event listeners
+        document.querySelectorAll(".view-media-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                const mediaUrl = this.getAttribute("data-media");
+                const mediaType = this.getAttribute("data-type");
+                currentMediaUrl = mediaUrl;
+                currentMediaFilename = this.getAttribute("data-filename") || "media";
+                currentMediaType = mediaType;
+
+                // Show loading spinner
+                modal.style.display = "block";
+                modalContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+                // Create media element based on type
+                setTimeout(() => {
+                    if (mediaType === "image") {
+                        currentMediaElement = document.createElement("img");
+                        currentMediaElement.src = mediaUrl;
+                        currentMediaElement.className = "modal-image";
+                        currentMediaElement.alt = "Enlarged media";
+                    } else if (mediaType === "video") {
+                        currentMediaElement = document.createElement("video");
+                        currentMediaElement.src = mediaUrl;
+                        currentMediaElement.className = "modal-video";
+                        currentMediaElement.controls = true;
+                        currentMediaElement.autoplay = true;
+                    }
+
+                    // Replace loading with media
+                    modalContent.innerHTML = "";
+                    modalContent.appendChild(currentMediaElement);
+                }, 300);
+            });
+        });
+
+        // Download functionality for modal
+        downloadBtn.addEventListener("click", function() {
+            downloadMedia(currentMediaUrl, currentMediaFilename, currentMediaType);
+        });
+
+        // Download buttons on each card
+        document.querySelectorAll(".download-media-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                const mediaUrl = this.getAttribute("data-media");
+                const filename = this.getAttribute("data-filename") || "media";
+                const mediaType = this.getAttribute("data-type");
+                downloadMedia(mediaUrl, filename, mediaType);
+            });
+        });
+
+        // Fullscreen functionality
+        fullscreenBtn.addEventListener("click", function() {
+            if (currentMediaElement) {
+                if (currentMediaElement.requestFullscreen) {
+                    currentMediaElement.requestFullscreen();
+                } else if (currentMediaElement.webkitRequestFullscreen) {
+                    currentMediaElement.webkitRequestFullscreen();
+                } else if (currentMediaElement.msRequestFullscreen) {
+                    currentMediaElement.msRequestFullscreen();
+                }
+            }
+        });
+
+        // Close modal
+        closeBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+            // Pause video if it's playing
+            if (currentMediaElement && currentMediaElement.tagName === "VIDEO") {
+                currentMediaElement.pause();
+            }
+        });
+
+        // Close when clicking outside content
+        window.addEventListener("click", function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+                if (currentMediaElement && currentMediaElement.tagName === "VIDEO") {
+                    currentMediaElement.pause();
+                }
+            }
+        });
+
+        // Close with Escape key
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                modal.style.display = "none";
+                if (currentMediaElement && currentMediaElement.tagName === "VIDEO") {
+                    currentMediaElement.pause();
+                }
+            }
+        });
+
+        // Enhanced download function
+        function downloadMedia(url, filename, type) {
+            if (!url) return;
+
+            // Clean the filename and add appropriate extension
+            const cleanFilename = filename.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const extension = type === "image" ?
+                (url.match(/\.(jpeg|jpg|gif|png)$/) ? url.split('.').pop() : 'jpg') :
+                (url.match(/\.(mp4|mov|avi|webm)$/) ? url.split('.').pop() : 'mp4');
+
+            const downloadFilename = `${cleanFilename}.${extension}`;
+
+            // Create a temporary anchor element
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = downloadFilename;
+            a.target = '_blank';
+
+            // For Safari and other browsers that might block downloads
+            a.style.display = 'none';
+            document.body.appendChild(a);
+
+            // Trigger the download
+            a.click();
+
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+
+            // Fallback for browsers that don't support download attribute
+            setTimeout(() => {
+                if (!document.body.contains(a)) {
+                    window.open(url, '_blank');
+                }
+            }, 200);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1049 @@
+﻿@model IEnumerable<EventHUB.Models.Entities.EventMedia>
+@{
+    Layout = null;
+    var currentFolder = ViewBag.CurrentFolder as string;
+    var folderList = ViewBag.FolderList as List<string>;
+    int pendingApprovalsCount = 5; // This should come from your controller
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --urgent-color: #e74c3c;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 3px;
+            }
+
+                .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+            .sidebar-menu h3 {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 0 20px 10px;
+            }
+
+            .sidebar-menu ul {
+                list-style: none;
+            }
+
+            .sidebar-menu li a {
+                display: block;
+                padding: 12px 20px;
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: all 0.3s;
+                border-left: 3px solid transparent;
+            }
+
+                .sidebar-menu li a:hover,
+                .sidebar-menu li a.active {
+                    background-color: rgba(0, 0, 0, 0.2);
+                    color: white;
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .sidebar-menu li a i {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Content Area Styles */
+        .content {
+            padding: 30px;
+        }
+
+        /* Media Library Specific Styles */
+        .media-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .media-upload-form {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+            .btn-upload:hover {
+                background-color: var(--secondary-color);
+                color: white;
+            }
+
+        /* Media Card Styles */
+        .media-card {
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            background-color: white;
+        }
+
+            .media-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .media-thumbnail {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+            .media-thumbnail img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .video-thumbnail video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 3rem;
+            opacity: 0.8;
+            background-color: rgba(0, 0, 0, 0.3);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .media-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-metadata {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .media-folder {
+            display: inline-block;
+            background-color: #e9ecef;
+            color: #495057;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .media-actions {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Media Modal Styles */
+        .media-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+            .media-modal.show {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 1;
+            }
+
+        .media-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            margin: 20px auto;
+            background-color: transparent;
+        }
+
+        #modalImage {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 5px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        #modalVideo {
+            max-width: 100%;
+            max-height: 85vh;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .close-media-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            z-index: 2001;
+        }
+
+        .modal-info-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .media-modal-content:hover .modal-info-panel {
+            transform: translateY(0);
+        }
+
+        /* Folder List Styles */
+        .folder-list {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .folder-list .list-group-item {
+                border-left: 3px solid transparent;
+                transition: all 0.2s;
+            }
+
+                .folder-list .list-group-item:hover {
+                    background-color: #f8f9fa;
+                }
+
+                .folder-list .list-group-item.active {
+                    background-color: #e9f2f9;
+                    border-left: 3px solid var(--primary-color);
+                    color: var(--dark-color);
+                }
+
+                .folder-list .list-group-item a {
+                    color: inherit;
+                    display: block;
+                    text-decoration: none;
+                }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+            .empty-state i {
+                font-size: 4rem;
+                color: #dee2e6;
+                margin-bottom: 20px;
+            }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+                border-color: var(--primary-color);
+            }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #95a5a6;
+            font-size: 14px;
+            border-top: 1px solid #ecf0f1;
+            margin-top: 30px;
+        }
+
+        /* Media Type Badge */
+        .media-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            .stats-container
+
+        {
+            flex-direction: column;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar
+
+        {
+            width: 70px;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: var(--sidebar-width);
+        }
+
+        .sidebar-header h2,
+        .sidebar-menu h3,
+        .sidebar-menu li a span {
+            display: none;
+        }
+
+        .sidebar:hover .sidebar-header h2,
+        .sidebar:hover .sidebar-menu h3,
+        .sidebar:hover .sidebar-menu li a span {
+            display: inline;
+        }
+
+        .sidebar-menu li a {
+            text-align: center;
+            padding: 12px 5px;
+        }
+
+            .sidebar-menu li a i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+
+        .main-content {
+            margin-left: 70px;
+        }
+
+        .sidebar:hover ~ .main-content {
+            margin-left: var(--sidebar-width);
+        }
+
+        }
+
+        @@media (max-width: 576px) {
+            .header
+
+        {
+            padding: 0 15px;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .media-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .media-thumbnail,
+        .video-thumbnail {
+            height: 150px;
+        }
+        }
+        /* Updated Media Thumbnail Styles for Consistent Size */
+        .media-thumbnail,
+        .video-thumbnail {
+            height: 200px; /* Fixed height */
+            width: 100%; /* Full width of container */
+            overflow: hidden;
+            position: relative;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .media-thumbnail img,
+            .video-thumbnail video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* Ensures images/videos cover the space without distortion */
+            }
+
+                /* For portrait images that should show full height */
+                .media-thumbnail img.portrait {
+                    width: auto;
+                    height: 100%;
+                }
+
+                /* For landscape images that should show full width */
+                .media-thumbnail img.landscape {
+                    width: 100%;
+                    height: auto;
+                }
+
+            /* Maintain aspect ratio for videos */
+            .video-thumbnail video {
+                object-fit: contain; /* Shows entire video without cropping */
+                background-color: #000; /* Black background for letterboxing */
+            }
+
+        /* Play icon positioning */
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 3rem;
+            opacity: 0.8;
+            z-index: 10;
+        }
+
+        /* Media type badge */
+        .media-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Card container for consistent spacing */
+        .media-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .media-info {
+            padding: 15px;
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Add this to your existing CSS */
+        .media-thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio (Square) */
+            background-color: #f8f9fa;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
+        }
+
+            .media-thumbnail-container img,
+            .media-thumbnail-container video {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* This will crop to fill the square */
+            }
+
+            /* For videos specifically - show full video without cropping */
+            .media-thumbnail-container video {
+                object-fit: contain;
+                background-color: #000;
+            }
+        /* Consistent Media Card Styles */
+        .media-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+            .media-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        /* Thumbnail Container - Fixed Aspect Ratio (1:1 or 16:9) */
+        .media-thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+
+            /* For images */
+            .media-thumbnail-container img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* Crop to fill container */
+            }
+
+            /* For videos */
+            .media-thumbnail-container video {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* Or use 'contain' to show full video */
+                background-color: #000; /* Black background for letterboxing */
+            }
+
+        /* Play icon for videos */
+        .video-play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2.5rem;
+            opacity: 0.8;
+            z-index: 10;
+        }
+
+        /* Media type badge */
+        .media-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Card body styles */
+        .media-card-body {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-card-text {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .media-card-actions {
+            margin-top: auto;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="m-0">Member</h2>
+            </div>
+            <div class="sidebar-menu">
+                <h3>Main</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Member" asp-action="MemberDashboard">
+                            <i class="fas fa-home"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3>Events</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Member" asp-action="EventList">
+                            <i class="fas fa-list-ul"></i> <span>Event List</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Member" asp-action="MediaLibrary">
+                            <i class="fas fa-photo-video"></i> <span>Media Library</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Member" asp-action="Meeting">
+                            <i class="fas fa-video"></i> <span>Meeting</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3>Account</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Member" asp-action="Payment">
+                            <i class="fas fa-wallet"></i> <span>Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Member" asp-action="Message">
+                            <i class="fas fa-envelope"></i> <span>Message</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <h3>User</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Guest" asp-action="Logout">
+                            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h3>Media Library</h3>
+                <div class="header-actions">
+                    <span class="text-muted">Welcome back, Admin</span>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Upload Form (no background div) -->
+                <div class="media-upload-form">
+                    <h4 class="mb-4 text-primary">Upload New Media</h4>
+
+                    @if (!string.IsNullOrEmpty(currentFolder))
+                    {
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-folder me-2"></i> Uploading to: <strong>@currentFolder</strong>
+                            <a href="@Url.Action("MediaLibrary")" class="float-end text-decoration-none">
+                                <i class="fas fa-times me-1"></i> Clear filter
+                            </a>
+                        </div>
+                    }
+
+                    <form asp-action="UploadMedia" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Media File <span class="text-danger">*</span></label>
+                                <input type="file" name="file" class="form-control" required />
+                                <div class="form-text">Accepted formats: .jpg, .png, .mp4, .mov</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Event Name <span class="text-danger">*</span></label>
+                                <input type="text" name="eventName" class="form-control" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Media Type <span class="text-danger">*</span></label>
+                                <select name="mediaType" class="form-select" required>
+                                    <option value="" disabled selected>Select type</option>
+                                    <option value="image">Image</option>
+                                    <option value="video">Video</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Event Date <span class="text-danger">*</span></label>
+                                <input type="date" name="eventDate" class="form-control" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Event Time <span class="text-danger">*</span></label>
+                                <input type="time" name="eventTime" class="form-control" required />
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="newFolderToggle">
+                                    <label class="form-check-label" for="newFolderToggle">Create New Folder</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 folder-select-group">
+                                <label class="form-label">Select Existing Folder <span class="text-danger">*</span></label>
+                                <select name="folderName" class="form-select" required>
+                                    <option value="">Select a folder</option>
+                                    @foreach (var folder in folderList.Distinct())
+                                    {
+                                        <option value="@folder" selected="@(currentFolder == folder)">@folder</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 folder-input-group d-none">
+                                <label class="form-label">New Folder Name <span class="text-danger">*</span></label>
+                                <input type="text" name="newFolderName" class="form-control" placeholder="Enter new folder name" />
+                            </div>
+                            <div class="col-12 text-end">
+                                <button asp-action="UploadMedia" type="submit" class="btn btn-upload">
+                                    <i class="fas fa-upload me-2"></i>Upload Media
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-3">
+                        <div class="bg-white p-3 rounded shadow-sm border">
+                            <h5 class="mb-3">Folders</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center @(string.IsNullOrEmpty(currentFolder) ? "active" : "")">
+                                    <a href="@Url.Action("MediaLibrary", new { folder = "" })" class="text-decoration-none" style="color:black">All Media</a>
+                                    <span class="badge bg-primary rounded-pill" >@Model.Count()</span>
+                                </li>
+                                @foreach (var folder in folderList.Distinct())
+                                {
+                                    var count = Model.Count(m => m.FolderName == folder);
+                                    <li class="list-group-item d-flex justify-content-between align-items-center @(currentFolder == folder ? "active" : "")">
+                                        <a href="@Url.Action("MediaLibrary", new { folder = folder })" class="text-decoration-none" style="color:black">@folder</a>
+                                        <span class="badge bg-secondary rounded-pill" style="color:black">@count</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-9">
+                        @if (!Model.Any())
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-photo-video fa-4x text-muted mb-3"></i>
+                                <h4>No media found</h4>
+                                <p class="text-muted">Upload some media to get started.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                @foreach (var item in Model)
+                                {
+                                    <div class="col-md-6 col-lg-4 mb-4">
+                                        <div class="card shadow-sm media-card">
+                                            <div class="media-thumbnail-container">
+                                                @if (item.MediaType == "image")
+                                                {
+                                                    <img src="@item.FilePath" alt="@item.EventName">
+                                                    <span class="media-type-badge">Image</span>
+                                                }
+                                                else if (item.MediaType == "video")
+                                                {
+                                                    <video>
+                                                        <source src="@item.FilePath" type="video/mp4">
+                                                    </video>
+                                                    <span class="media-type-badge">Video</span>
+                                                    <i class="fas fa-play video-play-icon"></i>
+                                                }
+                                            </div>
+                                            <div class="media-card-body">
+                                                <h5 class="media-card-title">@item.EventName</h5>
+                                                <p class="media-card-text small">
+                                                    <i class="far fa-calendar-alt me-1"></i>@item.EventDate.ToString("MMMM dd, yyyy")
+                                                </p>
+                                                <p class="media-card-text small">
+                                                    <i class="far fa-clock me-1"></i>Uploaded @item.UploadDate.ToString("MMMM dd, yyyy")
+                                                </p>
+                                                <div class="media-card-actions">
+                                                    <button class="btn btn-sm btn-outline-primary view-media-btn"
+                                                            data-media="@item.FilePath"
+                                                            data-type="@item.MediaType">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </button>
+                                                    <span class="badge bg-light text-dark">
+                                                        <i class="fas fa-folder me-1"></i>@item.FolderName
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2025 EventHub | Admin Dashboard v1.0</p>
+            </div>
+        </div>
+
+        <!-- Media Modal -->
+        <div id="mediaModal" class="media-modal">
+            <span class="media-modal-close">&times;</span>
+            <div class="media-modal-content">
+                <div id="modalMediaContainer">
+                    <!-- Media will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Toggle between folder select and new folder input
+            document.getElementById('newFolderToggle').addEventListener('change', function() {
+                const folderSelectGroup = document.querySelector('.folder-select-group');
+                const folderInputGroup = document.querySelector('.folder-input-group');
+
+                if (this.checked) {
+                    folderSelectGroup.classList.add('d-none');
+                    folderInputGroup.classList.remove('d-none');
+                    folderSelectGroup.querySelector('select').removeAttribute('required');
+                    folderInputGroup.querySelector('input').setAttribute('required', '');
+                } else {
+                    folderSelectGroup.classList.remove('d-none');
+                    folderInputGroup.classList.add('d-none');
+                    folderSelectGroup.querySelector('select').setAttribute('required', '');
+                    folderInputGroup.querySelector('input').removeAttribute('required');
+                }
+            });
+
+            // Media Modal functionality
+            const modal = document.getElementById('mediaModal');
+            const modalMediaContainer = document.getElementById('modalMediaContainer');
+            const closeBtn = document.querySelector('.media-modal-close');
+
+            // Function to open modal with media
+            function openMediaModal(mediaPath, mediaType) {
+                // Clear previous content
+                modalMediaContainer.innerHTML = '';
+
+                let mediaElement;
+                if (mediaType === 'image') {
+                    mediaElement = document.createElement('img');
+                    mediaElement.src = mediaPath;
+                    mediaElement.style.maxWidth = '100%';
+                    mediaElement.style.maxHeight = '90vh';
+                    mediaElement.style.objectFit = 'contain';
+                } else if (mediaType === 'video') {
+                    mediaElement = document.createElement('video');
+                    mediaElement.src = mediaPath;
+                    mediaElement.controls = true;
+                    mediaElement.autoplay = true;
+                    mediaElement.style.maxWidth = '100%';
+                    mediaElement.style.maxHeight = '90vh';
+                }
+
+                modalMediaContainer.appendChild(mediaElement);
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close modal
+            function closeMediaModal() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Event delegation for view buttons (works for dynamically added elements)
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.view-media-btn')) {
+                    const btn = e.target.closest('.view-media-btn');
+                    const mediaPath = btn.getAttribute('data-media');
+                    const mediaType = btn.getAttribute('data-type');
+                    openMediaModal(mediaPath, mediaType);
+                }
+            });
+
+            // Close modal when clicking close button or outside
+            closeBtn.addEventListener('click', closeMediaModal);
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeMediaModal();
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    closeMediaModal();
+                }
+            });
+        </script>
+</body>
+</html>
