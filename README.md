@@ -89,7 +89,7 @@
 
 1. **Clone the repository**
    ```bash
-    git clone https://github.com/Practice-for/EventHUB.git
+    git clone https://github.com/hashir-zahid/EventHUB.git
 
 2. **Open the solution**
         
@@ -100,3 +100,4 @@
 5. **Apply migrations**
 
 6. **Run the application**
+
